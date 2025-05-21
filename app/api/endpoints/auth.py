@@ -6,10 +6,9 @@ from sqlalchemy.orm import Session as SQLAlchemySession
 
 from app.core import security
 from app.core.config import settings
-from app.db.session import get_db
 from app.models.schemas import Token, UserSchema
 from app.services.impl.user_service import UserService
-from app.api.dependencies import get_user_service, get_current_active_user
+from app.dependencies import get_db, get_user_service, get_current_active_user
 
 router = APIRouter()
 

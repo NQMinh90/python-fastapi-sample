@@ -9,8 +9,8 @@ from app.models.schemas import (
 )
 from app.services.impl.candidate_tag_service import CandidateTagService
 from app.repositories.impl.candidate_tag_repository import CandidateTagRepository
-from app.db.session import get_db
-from app.api.dependencies import get_current_active_user # Bảo vệ endpoint
+from app.dependencies import get_db, get_current_active_user # <--- THAY ĐỔI IMPORT
+
 
 # --- Dependencies cho CandidateTag ---
 

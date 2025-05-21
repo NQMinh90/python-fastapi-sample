@@ -5,7 +5,8 @@ from app.api.base_api import BaseAPIRouter
 from app.models.schemas import ItemSchema, ItemCreate, ItemUpdate
 from app.services.impl.item_service import ItemService
 from app.repositories.impl.item_repository import ItemRepository
-from app.db.session import get_db
+from app.dependencies import get_db # <--- THAY ĐỔI IMPORT
+
 
 # --- Dependencies cho Item ---
 

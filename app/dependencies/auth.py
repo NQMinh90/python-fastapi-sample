@@ -5,26 +5,20 @@ from pydantic import ValidationError
 from sqlalchemy.orm import Session as SQLAlchemySession
 
 from app.core.config import settings
-from app.db.session import get_db
-from app.models.schemas import TokenData, UserSchema, UserInDBBase as UserInDB
+from app.models.schemas import TokenData, UserInDBBase as UserInDB # UserSchema sẽ được dùng ở tầng API
 from app.services.impl.user_service import UserService
-from app.repositories.impl.user_repository import UserRepository
+from .db import get_db # Import từ sibling module 'db.py'
+from .user import get_user_service # Import từ sibling modul
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}/auth/login" # Sửa thành /auth/login cho phù hợp
+    tokenUrl=f"{settings.API_V1_STR}/auth/login"
 )
-
-def get_user_repository() -> UserRepository:
-    return UserRepository()
-
-def get_user_service(repo: UserRepository = Depends(get_user_repository)) -> UserService:
-    return UserService(user_repository=repo)
 
 async def get_current_user(
     db: SQLAlchemySession = Depends(get_db),
     token: str = Depends(oauth2_scheme),
     user_service: UserService = Depends(get_user_service),
-) -> UserInDB: # Trả về UserInDB để có thể dùng trong service, API sẽ convert sang UserSchema
+) -> UserInDB:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -41,7 +35,7 @@ async def get_current_user(
     user = await user_service.get_user_by_email(db, email=token_data.username)
     if user is None:
         raise credentials_exception
-    return user # Trả về đối tượng UserInDB
+    return user
 
 async def get_current_active_user(current_user: UserInDB = Depends(get_current_user)) -> UserInDB:
     if not current_user.is_active:

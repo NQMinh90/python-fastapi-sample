@@ -1,21 +1,26 @@
+# /Users/nqminh/Documents/GitHub/python-fastapi-sample/app/api/endpoints/users.py
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session as SQLAlchemySession
 
-from app.api import dependencies # Sử dụng dependencies đã tạo
-from app.db.session import get_db
+# Cách 1: Import cụ thể từng dependency bạn cần
+from app.dependencies import get_db, get_user_service, get_current_active_user
+# Hoặc Cách 2: Import cả module dependencies và dùng với alias (ví dụ: deps)
+# import app.dependencies as deps
+# Sau đó dùng: db: SQLAlchemySession = Depends(deps.get_db)
+
 from app.models.schemas import UserCreate, UserSchema, UserUpdate, Msg
-from app.services.impl.user_service import UserService
+from app.services.impl.user_service import UserService # Vẫn cần cho type hinting nếu bạn dùng
 
 router = APIRouter()
 
 @router.post("/", response_model=UserSchema, status_code=201)
 async def create_user_registration(
     *,
-    db: SQLAlchemySession = Depends(get_db),
+    db: SQLAlchemySession = Depends(get_db), # Sử dụng get_db đã import
     user_in: UserCreate,
-    user_service: UserService = Depends(dependencies.get_user_service) # Sử dụng dependency
+    user_service: UserService = Depends(get_user_service) # Sử dụng get_user_service đã import
 ):
     """
     Create new user without needing authentication.
@@ -32,7 +37,9 @@ async def create_user_registration(
 
 @router.get("/me", response_model=UserSchema)
 async def read_users_me(
-    current_user: UserSchema = Depends(dependencies.get_current_active_user),
+    # current_user được type hint là UserSchema vì API trả về UserSchema
+    # get_current_active_user trả về UserInDB, FastAPI sẽ tự chuyển đổi
+    current_user: UserSchema = Depends(get_current_active_user), # Sử dụng get_current_active_user đã import
 ):
     """
     Get current user.

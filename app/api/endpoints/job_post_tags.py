@@ -9,8 +9,8 @@ from app.models.schemas import (
 )
 from app.services.impl.job_post_tag_service import JobPostTagService
 from app.repositories.impl.job_post_tag_repository import JobPostTagRepository
-from app.db.session import get_db
-from app.api.dependencies import get_current_active_user # Bảo vệ endpoint
+from app.dependencies import get_db, get_current_active_user # <--- THAY ĐỔI IMPORT
+
 
 # --- Dependencies cho JobPostTag ---
 

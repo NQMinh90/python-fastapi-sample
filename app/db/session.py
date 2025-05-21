@@ -10,11 +10,3 @@ if settings.SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
 
 engine = create_engine(settings.SQLALCHEMY_DATABASE_URL, **engine_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Dependency để lấy DB session
-def get_db() -> Generator[SQLAlchemySession, None, None]:
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
