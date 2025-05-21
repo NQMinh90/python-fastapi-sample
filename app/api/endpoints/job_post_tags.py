@@ -1,12 +1,13 @@
 from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession # Sử dụng AsyncSession
 
 from app.api.base_api import BaseAPIRouter
 from app.models.schemas import (
     JobPostTagSchema,
     JobPostTagCreate,
-    JobPostTagUpdate,
-    JobPostTagInDBBase
+    JobPostTagUpdate
 )
+from app.models.job_post_tag import JobPostTag as JobPostTagModel # Import SQLAlchemy model
 from app.services.impl.job_post_tag_service import JobPostTagService
 from app.repositories.impl.job_post_tag_repository import JobPostTagRepository
 from app.dependencies import get_db, get_current_active_user # <--- THAY ĐỔI IMPORT
@@ -20,7 +21,7 @@ def get_job_post_tag_repository() -> JobPostTagRepository:
 def get_job_post_tag_service(repo: JobPostTagRepository = Depends(get_job_post_tag_repository)) -> JobPostTagService:
     return JobPostTagService(job_post_tag_repository=repo)
 
-router = BaseAPIRouter[JobPostTagService, JobPostTagInDBBase, JobPostTagSchema, JobPostTagCreate, JobPostTagUpdate](
+router = BaseAPIRouter[JobPostTagService, JobPostTagModel, JobPostTagSchema, JobPostTagCreate, JobPostTagUpdate](
     service_dependency=get_job_post_tag_service,
     response_model_schema=JobPostTagSchema,
     create_model_schema=JobPostTagCreate,
@@ -28,5 +29,5 @@ router = BaseAPIRouter[JobPostTagService, JobPostTagInDBBase, JobPostTagSchema, 
     db_session_dependency=get_db,
     prefix="/job-post-tags",
     tags=["Job Post Tags"],
-    dependencies=[Depends(get_current_active_user)] # Yêu cầu xác thực cho tất cả các route của JobPostTag
+    # dependencies=[Depends(get_current_active_user)] # Yêu cầu xác thực cho tất cả các route của JobPostTag
 )
