@@ -7,3 +7,6 @@ python-jose[cryptography]
 passlib[bcrypt]
 jwt
 python-multipart
+pydantic[email]
+mysql-connector-python # Sử dụng driver chính thức cho MySQL
+aiomysql # Driver MySQL bất đồng bộ cho tenant DBs

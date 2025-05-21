@@ -1,10 +1,11 @@
-from app.models.schemas import ItemSchema, ItemCreate, ItemUpdate
-from app.repositories.in_memory_repository import InMemoryRepository
+from app.models.item import Item as ItemModel # Import SQLAlchemy model cho Item
+from app.models.schemas import ItemCreate, ItemUpdate # Giữ lại Pydantic schemas
+from app.repositories.sqlalchemy_repository import SQLAlchemyRepository
 
-class ItemRepository(InMemoryRepository[ItemSchema, ItemCreate, ItemUpdate]):
+class ItemRepository(SQLAlchemyRepository[ItemModel, ItemCreate, ItemUpdate]):
     """
-    ItemRepository cụ thể, sử dụng InMemoryRepository.
-    ItemSchema sẽ đóng vai trò là "ModelType" được lưu trữ trong InMemoryRepository.
+    ItemRepository cụ thể, sử dụng SQLAlchemyRepository để tương tác với DB.
+    ItemModel là SQLAlchemy model.
     """
     def __init__(self):
-        super().__init__(model_schema=ItemSchema) # ItemSchema là Pydantic model cho item
+        super().__init__(model=ItemModel) # Truyền class ItemModel SQLAlchemy

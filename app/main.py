@@ -4,6 +4,7 @@ from app.api.endpoints import auth as auth_api, users as users_api
 from app.api.endpoints import candidate_tags as candidate_tags_api
 from app.api.endpoints import job_post_tags as job_post_tags_api
 from app.core.config import settings
+from app.middleware.error_logging import ErrorLoggingMiddleware # Import middleware mới
 
 # from app.db.base_class import Base # Bỏ comment nếu bạn có SQLAlchemy models
 # from app.db.session import engine # Bỏ comment nếu bạn có SQLAlchemy models
@@ -16,6 +17,9 @@ app = FastAPI(
     description="Một dự án FastAPI mẫu với kiến trúc 3 lớp và các lớp Base.",
     version="0.1.0",
 )
+
+# Thêm Middleware
+app.add_middleware(ErrorLoggingMiddleware) # Thêm middleware log lỗi
 
 # Include router của items vào ứng dụng chính với prefix /api/v1
 app.include_router(items_api.router, prefix=settings.API_V1_STR)

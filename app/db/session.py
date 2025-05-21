@@ -1,12 +1,28 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session as SQLAlchemySession # Đổi tên để tránh trùng
-from typing import Generator
+from typing import AsyncGenerator # Sử dụng AsyncGenerator
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession # Import các thành phần async
+from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 
-# Sử dụng URL từ settings, đảm bảo có connect_args cho SQLite
-engine_args = {}
-if settings.SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
-    engine_args["connect_args"] = {"check_same_thread": False}
+engine_args = {} 
 
-engine = create_engine(settings.SQLALCHEMY_DATABASE_URL, **engine_args)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+if "mysql+aiomysql" in settings.CENTRAL_DATABASE_URL.lower():
+    engine_args = {
+        "pool_recycle": 3600,
+        "pool_pre_ping": True,
+    }
+elif "sqlite+aiosqlite" in settings.CENTRAL_DATABASE_URL.lower(): # Nếu dùng SQLite async
+    # engine_args["connect_args"] = {"check_same_thread": False} # Không cần cho aiosqlite
+    pass
+
+central_engine = create_async_engine(settings.CENTRAL_DATABASE_URL, **engine_args)
+CentralSessionLocal = sessionmaker(
+    bind=central_engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+# Dependency này không còn được sử dụng trực tiếp nếu get_central_db_session được dùng thay thế
+# get_central_db_session sẽ được cập nhật trong app/dependencies/tenant.py
+# def get_db() -> Generator[SQLAlchemySession, None, None]:
+#     db = SessionLocal()
+#     try:

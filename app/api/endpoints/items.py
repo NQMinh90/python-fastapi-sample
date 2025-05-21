@@ -2,6 +2,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session as SQLAlchemySession
 
 from app.api.base_api import BaseAPIRouter
+from app.models.item import Item as ItemModel # Import SQLAlchemy model
 from app.models.schemas import ItemSchema, ItemCreate, ItemUpdate
 from app.services.impl.item_service import ItemService
 from app.repositories.impl.item_repository import ItemRepository
@@ -25,7 +26,7 @@ def get_item_service(repo: ItemRepository = Depends(get_item_repository)) -> Ite
     return ItemService(item_repository=repo)
 
 # Tạo router cho Items sử dụng BaseAPIRouter
-router = BaseAPIRouter[ItemService, ItemSchema, ItemSchema, ItemCreate, ItemUpdate](
+router = BaseAPIRouter[ItemService, ItemModel, ItemSchema, ItemCreate, ItemUpdate](
     service_dependency=get_item_service,      # Dependency để lấy ItemService
     response_model_schema=ItemSchema,         # Schema cho response (GET, POST, PUT, DELETE)
     create_model_schema=ItemCreate,           # Schema cho request body khi tạo (POST)

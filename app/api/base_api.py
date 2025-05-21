@@ -1,7 +1,7 @@
 from typing import Any, Callable, Generic, List, Type, TypeVar, Optional
 from fastapi import APIRouter, Depends, HTTPException, params
 from pydantic import BaseModel
-from sqlalchemy.orm import Session as SQLAlchemySession
+from sqlalchemy.ext.asyncio import AsyncSession # Sử dụng AsyncSession
 
 from app.services.base_service import BaseService
 
@@ -32,7 +32,7 @@ class BaseAPIRouter(
         response_model_schema: Type[SchemaType],       # Pydantic schema cho response
         create_model_schema: Type[CreateSchemaType],   # Pydantic schema cho tạo mới
         update_model_schema: Type[UpdateSchemaType],   # Pydantic schema cho cập nhật
-        db_session_dependency: Callable[..., SQLAlchemySession], # Dependency cho DB session
+        db_session_dependency: Callable[..., AsyncSession], # Dependency cho DB session
         prefix: str = "",
         tags: Optional[List[str]] = None,
         dependencies: Optional[List[params.Depends]] = None,
@@ -72,13 +72,13 @@ class BaseAPIRouter(
     def _create(self) -> Callable[..., Any]:
         async def endpoint(item_in: self.create_model_schema, # type: ignore
                            service: ServiceType = Depends(self.service_dependency),
-                           db: SQLAlchemySession = Depends(self.db_session_dependency)):
+                           db: AsyncSession = Depends(self.db_session_dependency)):
             return await service.create(db=db, obj_in=item_in)
         return endpoint
 
     def _read_all(self) -> Callable[..., Any]:
         async def endpoint(service: ServiceType = Depends(self.service_dependency),
-                           db: SQLAlchemySession = Depends(self.db_session_dependency),
+                           db: AsyncSession = Depends(self.db_session_dependency),
                            skip: int = 0, limit: int = 100):
             return await service.get_multi(db=db, skip=skip, limit=limit)
         return endpoint
@@ -86,7 +86,7 @@ class BaseAPIRouter(
     def _read_one(self) -> Callable[..., Any]:
         async def endpoint(item_id: Any, # Nên là int hoặc UUID tùy theo ID của bạn
                            service: ServiceType = Depends(self.service_dependency),
-                           db: SQLAlchemySession = Depends(self.db_session_dependency)):
+                           db: AsyncSession = Depends(self.db_session_dependency)):
             obj = await service.get(db=db, id=item_id)
             if not obj: raise HTTPException(status_code=404, detail=f"{self._get_model_name()} not found")
             return obj
@@ -95,7 +95,7 @@ class BaseAPIRouter(
     def _update(self) -> Callable[..., Any]:
         async def endpoint(item_id: Any, item_in: self.update_model_schema, # type: ignore
                            service: ServiceType = Depends(self.service_dependency),
-                           db: SQLAlchemySession = Depends(self.db_session_dependency)):
+                           db: AsyncSession = Depends(self.db_session_dependency)):
             db_obj = await service.get(db=db, id=item_id)
             if not db_obj: raise HTTPException(status_code=404, detail=f"{self._get_model_name()} not found")
             return await service.update(db=db, db_obj=db_obj, obj_in=item_in)
@@ -104,7 +104,7 @@ class BaseAPIRouter(
     def _delete(self) -> Callable[..., Any]:
         async def endpoint(item_id: Any,
                            service: ServiceType = Depends(self.service_dependency),
-                           db: SQLAlchemySession = Depends(self.db_session_dependency)):
+                           db: AsyncSession = Depends(self.db_session_dependency)):
             deleted_obj = await service.delete(db=db, id=item_id)
             if deleted_obj is None: raise HTTPException(status_code=404, detail=f"{self._get_model_name()} not found")
             return deleted_obj
