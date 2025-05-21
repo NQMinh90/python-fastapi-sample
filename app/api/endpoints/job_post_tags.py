@@ -29,5 +29,5 @@ router = BaseAPIRouter[JobPostTagService, JobPostTagModel, JobPostTagSchema, Job
     db_session_dependency=get_db,
     prefix="/job-post-tags",
     tags=["Job Post Tags"],
-    # dependencies=[Depends(get_current_active_user)] # Yêu cầu xác thực cho tất cả các route của JobPostTag
+    dependencies=[Depends(get_current_active_user)] # Yêu cầu xác thực cho tất cả các route của JobPostTag
 )
