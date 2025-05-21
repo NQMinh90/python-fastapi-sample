@@ -1,20 +1,10 @@
 from fastapi import Depends
-from sqlalchemy.orm import Session as SQLAlchemySession
-
 from app.api.base_api import BaseAPIRouter
 from app.models.item import Item as ItemModel # Import SQLAlchemy model
 from app.models.schemas import ItemSchema, ItemCreate, ItemUpdate
 from app.services.impl.item_service import ItemService
 from app.repositories.impl.item_repository import ItemRepository
 from app.dependencies import get_db # <--- THAY ĐỔI IMPORT
-
-
-# --- Dependencies cho Item ---
-
-# Dependency cho ItemRepository
-# Nếu ItemRepository của bạn cần db (ví dụ: SQLAlchemyRepository), bạn sẽ inject db ở đây.
-# def get_item_repository(db: SQLAlchemySession = Depends(get_db)) -> ItemRepository:
-# return ItemRepository(db=db) # Ví dụ nếu repo cần db session
 
 def get_item_repository() -> ItemRepository:
     """Trả về một instance của ItemRepository (hiện tại là InMemory)."""

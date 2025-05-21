@@ -1,9 +1,7 @@
 from datetime import timedelta
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session as SQLAlchemySession
-
+from sqlalchemy.ext.asyncio import AsyncSession # Sử dụng AsyncSession
 from app.core import security
 from app.core.config import settings
 from app.models.schemas import Token, UserSchema
@@ -14,7 +12,7 @@ router = APIRouter()
 
 @router.post("/login", response_model=Token)
 async def login_for_access_token(
-    db: SQLAlchemySession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     form_data: OAuth2PasswordRequestForm = Depends(),
     user_service: UserService = Depends(get_user_service),
 ):

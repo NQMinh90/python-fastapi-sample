@@ -1,15 +1,8 @@
 # /Users/nqminh/Documents/GitHub/python-fastapi-sample/app/api/endpoints/users.py
 from typing import Any, List
-
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session as SQLAlchemySession
-
-# Cách 1: Import cụ thể từng dependency bạn cần
+from sqlalchemy.ext.asyncio import AsyncSession # Sử dụng AsyncSession
 from app.dependencies import get_db, get_user_service, get_current_active_user
-# Hoặc Cách 2: Import cả module dependencies và dùng với alias (ví dụ: deps)
-# import app.dependencies as deps
-# Sau đó dùng: db: SQLAlchemySession = Depends(deps.get_db)
-
 from app.models.schemas import UserCreate, UserSchema, UserUpdate, Msg
 from app.services.impl.user_service import UserService # Vẫn cần cho type hinting nếu bạn dùng
 
@@ -18,7 +11,7 @@ router = APIRouter()
 @router.post("/", response_model=UserSchema, status_code=201)
 async def create_user_registration(
     *,
-    db: SQLAlchemySession = Depends(get_db), # Sử dụng get_db đã import
+    db: AsyncSession = Depends(get_db), # Sử dụng get_db đã import
     user_in: UserCreate,
     user_service: UserService = Depends(get_user_service) # Sử dụng get_user_service đã import
 ):
